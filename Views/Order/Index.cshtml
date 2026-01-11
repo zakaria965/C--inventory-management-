@@ -1,0 +1,236 @@
+@model IEnumerable<InventoryManagementSystem.Models.Order>
+@{
+    ViewData["Title"] = "Orders";
+    Layout = "_DashboardLayout";
+}
+
+@Html.AntiForgeryToken()
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1>Orders</h1>
+            <p style="color: #666; margin: 5px 0 0 0;">View all orders.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="/Order/Create" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Create Order</a>
+            <a href="/Order/Export?format=excel" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Export Excel</a>
+            <a href="/Order/Export?format=pdf" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Export PDF</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <form method="get" action="/Order" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" name="searchString" value="@ViewBag.SearchString" placeholder="Search orders..." style="flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <select name="statusFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Statuses</option>
+                @if (ViewBag.Statuses != null)
+                {
+                    @foreach (var status in (List<string>)ViewBag.Statuses)
+                    {
+                        <option value="@status" selected="@(ViewBag.StatusFilter == status)">@status</option>
+                    }
+                }
+            </select>
+            <button type="submit" style="background-color: #2d5a5a; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            <a href="/Order" style="background-color: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Clear</a>
+        </form>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #2d5a5a; color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Order Number</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Customer</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+                    <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Total Amount</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Status</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var order in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px; border: 1px solid #ddd;">@order.OrderNumber</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(order.CustomerName ?? "N/A")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(order.CustomerEmail ?? "N/A")</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">$@order.TotalAmount.ToString("N2")</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                @{
+                                    var statusColor = order.Status switch
+                                    {
+                                        "Pending" => "#ffc107",
+                                        "Processing" => "#17a2b8",
+                                        "Shipped" => "#007bff",
+                                        "Delivered" => "#28a745",
+                                        "Cancelled" => "#dc3545",
+                                        _ => "#6c757d"
+                                    };
+                                }
+                                <span style="background: @statusColor; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">@order.Status</span>
+                            </td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                <a href="/Order/Details/@order.Id" style="color: #2d5a5a; margin: 0 5px;">View</a>
+                                @if (order.Status != "Cancelled")
+                                {
+                                    <form method="post" action="/Order/UpdateStatus/@order.Id" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <select name="status" onchange="this.form.submit()" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; margin: 0 5px;">
+                                            <option value="Pending" selected="@(order.Status == "Pending")">Pending</option>
+                                            <option value="Processing" selected="@(order.Status == "Processing")">Processing</option>
+                                            <option value="Shipped" selected="@(order.Status == "Shipped")">Shipped</option>
+                                            <option value="Delivered" selected="@(order.Status == "Delivered")">Delivered</option>
+                                            <option value="Cancelled" selected="@(order.Status == "Cancelled")">Cancelled</option>
+                                        </select>
+                                    </form>
+                                    <button type="button" onclick="showCancelModal(@order.Id)" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 5px;">Cancel</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" style="padding: 20px; text-align: center; border: 1px solid #ddd;">No orders found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<!-- Beautiful Cancel Order Modal -->
+<div id="cancelModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; padding: 0; max-width: 450px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: modalSlideIn 0.3s ease-out;">
+        <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); padding: 25px; border-radius: 12px 12px 0 0; text-align: center;">
+            <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 30px; color: white;"></i>
+            </div>
+            <h2 style="margin: 0; color: white; font-size: 24px; font-weight: 600;">Cancel Order?</h2>
+        </div>
+        <div style="padding: 30px;">
+            <p style="margin: 0 0 25px 0; color: #555; font-size: 16px; line-height: 1.6; text-align: center;">
+                Are you sure you want to cancel this order?<br>
+                <strong style="color: #dc3545;">Stock will be rolled back automatically.</strong>
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="confirmCancelBtn" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); transition: all 0.3s;">
+                    Yes, Cancel Order
+                </button>
+                <button onclick="closeCancelModal()" style="background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s;">
+                    No, Keep Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentOrderId = null;
+
+    function showCancelModal(orderId) {
+        currentOrderId = orderId;
+        const modal = document.getElementById('cancelModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCancelModal() {
+        const modal = document.getElementById('cancelModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        currentOrderId = null;
+    }
+
+    document.getElementById('confirmCancelBtn').addEventListener('click', function() {
+        if (currentOrderId) {
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            
+            if (!token) {
+                alert('Security token not found. Please refresh the page and try again.');
+                return;
+            }
+            
+            // Create form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Order/Cancel/' + currentOrderId;
+            
+            // Add anti-forgery token
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '__RequestVerificationToken';
+            tokenInput.value = token.value;
+            form.appendChild(tokenInput);
+            
+            // Add to body and submit
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('cancelModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCancelModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCancelModal();
+        }
+    });
+</script>
+
+<style>
+    @@keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    #confirmCancelBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4) !important;
+    }
+
+    #cancelModal button:last-child:hover {
+        background: #e9ecef !important;
+        border-color: #adb5bd !important;
+    }
+</style>

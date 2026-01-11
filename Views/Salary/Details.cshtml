@@ -1,0 +1,82 @@
+@model InventoryManagementSystem.Models.Salary
+@{
+    ViewData["Title"] = "Salary Details";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <h1>Salary Record Details</h1>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 600px;">
+        <dl style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px;">
+            <dt style="font-weight: bold; color: #2d5a5a;">Employee:</dt>
+            <dd>@Model.Employee?.FullName</dd>
+
+            <dt style="font-weight: bold; color: #2d5a5a;">Month/Year:</dt>
+            <dd>@Model.Month/@Model.Year</dd>
+
+            <dt style="font-weight: bold; color: #2d5a5a;">Salary Type:</dt>
+            <dd>@Model.SalaryType</dd>
+
+            @if (Model.SalaryType == "Hourly" && Model.HoursWorked.HasValue)
+            {
+                <dt style="font-weight: bold; color: #2d5a5a;">Hours Worked:</dt>
+                <dd>@Model.HoursWorked.Value.ToString("N2")</dd>
+            }
+
+            <dt style="font-weight: bold; color: #2d5a5a;">Salary Amount:</dt>
+            <dd>$@Model.SalaryAmount.ToString("N2")</dd>
+
+            <dt style="font-weight: bold; color: #2d5a5a;">Advance Amount:</dt>
+            <dd>
+                @if (Model.AdvanceAmount > 0)
+                {
+                    <span style="color: #ff9800; font-weight: 600;">$@Model.AdvanceAmount.ToString("N2")</span>
+                }
+                else
+                {
+                    <span style="color: #999;">$0.00</span>
+                }
+            </dd>
+
+            <dt style="font-weight: bold; color: #2d5a5a;">Net Salary:</dt>
+            <dd>
+                <strong style="color: #28a745; font-size: 18px;">$@Model.NetSalary.ToString("N2")</strong>
+                <small style="color: #666; display: block; margin-top: 5px;">Amount after advance deduction</small>
+            </dd>
+
+            <dt style="font-weight: bold; color: #2d5a5a;">Status:</dt>
+            <dd>
+                @if (Model.IsPaid)
+                {
+                    <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Paid</span>
+                }
+                else
+                {
+                    <span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Unpaid</span>
+                }
+            </dd>
+
+            @if (Model.PaymentDate.HasValue)
+            {
+                <dt style="font-weight: bold; color: #2d5a5a;">Payment Date:</dt>
+                <dd>@Model.PaymentDate.Value.ToString("yyyy-MM-dd")</dd>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <dt style="font-weight: bold; color: #2d5a5a;">Notes:</dt>
+                <dd>@Model.Notes</dd>
+            }
+
+            <dt style="font-weight: bold; color: #2d5a5a;">Created Date:</dt>
+            <dd>@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</dd>
+        </dl>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <a href="/Salary/Edit/@Model.Id" style="background-color: #d4a574; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Edit</a>
+            <a href="/Salary" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Back to List</a>
+        </div>
+    </div>
+</div>
+

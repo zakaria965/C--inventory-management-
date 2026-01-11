@@ -1,0 +1,177 @@
+@{
+    var role = Context.Session.GetString("UserRole") ?? "User";
+    ViewData["Title"] = "About";
+    Layout = role.ToLower() == "user" ? "_UserDashboardLayout" : "_DashboardLayout";
+}
+
+@{
+    var missionVision = ViewBag.MissionVision as InventoryManagementSystem.Models.MissionVision;
+    var teamProfiles = ViewBag.TeamProfiles as List<InventoryManagementSystem.Models.TeamProfile>;
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1>About Inventory Management System</h1>
+        <div style="display: flex; gap: 10px;">
+            @if (role.ToLower() != "user")
+            {
+                <a href="/MissionVision" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                    <i class="fas fa-bullseye"></i> Manage Mission & Vision
+                </a>
+                <a href="/TeamProfile" style="background-color: #d4a574; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                    <i class="fas fa-users"></i> Manage Team
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Mission & Vision Section -->
+    @if (missionVision != null)
+    {
+        <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 40px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #2d5a5a; margin-bottom: 10px;">
+                    <i class="fas fa-bullseye"></i> Our Mission & Vision
+                </h2>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 30px; border-radius: 12px; margin-bottom: 25px; border-left: 6px solid #2d5a5a;">
+                <h3 style="color: #2d5a5a; margin: 0 0 15px 0; font-size: 24px;">
+                    <i class="fas fa-bullseye"></i> Mission Statement
+                </h3>
+                <p style="color: #333; line-height: 1.9; margin: 0; font-size: 16px; white-space: pre-wrap;">@missionVision.MissionStatement</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 30px; border-radius: 12px; border-left: 6px solid #2d5a5a;">
+                <h3 style="color: #2d5a5a; margin: 0 0 15px 0; font-size: 24px;">
+                    <i class="fas fa-eye"></i> Vision Statement
+                </h3>
+                <p style="color: #333; line-height: 1.9; margin: 0; font-size: 16px; white-space: pre-wrap;">@missionVision.VisionStatement</p>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; text-align: right;">
+                <small style="color: #999;">
+                    <i class="fas fa-clock"></i> Last Updated: @missionVision.LastUpdated.ToString("yyyy-MM-dd HH:mm")
+                </small>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 40px; text-align: center;">
+            <p style="color: #666; font-size: 18px; margin-bottom: 20px;">Mission & Vision has not been set yet.</p>
+            <a href="/MissionVision/Create" style="background-color: #2d5a5a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                <i class="fas fa-plus"></i> Add Mission & Vision
+            </a>
+        </div>
+    }
+
+    <!-- Team Profiles Section -->
+    <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #2d5a5a; margin-bottom: 10px;">
+                <i class="fas fa-users"></i> Our Team
+            </h2>
+            <p style="color: #666; font-size: 16px;">Meet the talented individuals behind the Inventory Management System</p>
+        </div>
+
+        @if (teamProfiles != null && teamProfiles.Any())
+        {
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
+                @foreach (var profile in teamProfiles)
+                {
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                        <div style="margin-bottom: 15px;">
+                            @if (!string.IsNullOrEmpty(profile.ProfileImagePath))
+                            {
+                                <img src="@profile.ProfileImagePath" alt="@profile.FullName" style="width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 6px solid #2d5a5a; box-shadow: 0 6px 20px rgba(0,0,0,0.25); display: block; margin: 0 auto; background: white;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                <div style="width: 160px; height: 160px; border-radius: 50%; background: linear-gradient(135deg, #2d5a5a 0%, #3d7a7a 100%); display: none; align-items: center; justify-content: center; margin: 0 auto; border: 6px solid #2d5a5a; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+                                    <i class="fas fa-user" style="font-size: 64px; color: white;"></i>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="width: 160px; height: 160px; border-radius: 50%; background: linear-gradient(135deg, #2d5a5a 0%, #3d7a7a 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 6px solid #2d5a5a; box-shadow: 0 6px 20px rgba(0,0,0,0.25);">
+                                    <i class="fas fa-user" style="font-size: 64px; color: white;"></i>
+                                </div>
+                            }
+                        </div>
+                        
+                        <h3 style="margin: 15px 0 8px 0; color: #2d5a5a; font-size: 20px;">@profile.FullName</h3>
+                        
+                        @if (!string.IsNullOrEmpty(profile.Role))
+                        {
+                            <p style="margin: 8px 0; color: #666; font-weight: 600; font-size: 15px;">
+                                <i class="fas fa-briefcase" style="margin-right: 5px; color: #2d5a5a;"></i>@profile.Role
+                            </p>
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(profile.Bio))
+                        {
+                            <p style="margin: 15px 0; color: #666; font-size: 14px; line-height: 1.6; text-align: left; min-height: 60px;">@profile.Bio</p>
+                        }
+                        
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px; justify-content: center;">
+                            @if (!string.IsNullOrEmpty(profile.EmailAddress))
+                            {
+                                <a href="mailto:@profile.EmailAddress" style="color: #2d5a5a; font-size: 18px; text-decoration: none;" title="Email">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(profile.PhoneNumber))
+                            {
+                                <a href="tel:@profile.PhoneNumber" style="color: #2d5a5a; font-size: 18px; text-decoration: none;" title="Phone">
+                                    <i class="fas fa-phone"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 40px; color: #999;">
+                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; color: #ddd;"></i>
+                <p style="font-size: 18px; margin-bottom: 20px;">No team members have been added yet.</p>
+                <a href="/TeamProfile/Create" style="background-color: #2d5a5a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                    <i class="fas fa-plus"></i> Add Team Member
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- System Information Section -->
+    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 40px;">
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #2d5a5a; border-bottom: 2px solid #2d5a5a; padding-bottom: 10px;">System Information</h3>
+            <p style="line-height: 1.8; color: #333;">
+                This is a comprehensive inventory management system designed to help businesses manage their products, 
+                purchases, sales, orders, employees, and salaries efficiently. The system provides real-time tracking 
+                of inventory levels, automated stock updates, and comprehensive reporting capabilities.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #2d5a5a; border-bottom: 2px solid #2d5a5a; padding-bottom: 10px;">Features</h3>
+            <ul style="line-height: 2; color: #333;">
+                <li>Product inventory management with low stock alerts</li>
+                <li>Purchase and outgoing product tracking</li>
+                <li>Order management with automatic stock deduction</li>
+                <li>Employee and salary management</li>
+                <li>Comprehensive reporting with PDF and Excel export</li>
+                <li>Message system for internal notes and reminders</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p style="color: #999;">© @DateTime.Now.Year Inventory Management System. All rights reserved.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    div[style*="transition: transform"]:hover {
+        transform: translateY(-5px);
+    }
+</style>

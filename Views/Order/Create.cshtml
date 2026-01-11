@@ -1,0 +1,308 @@
+@model InventoryManagementSystem.Models.Order
+@using InventoryManagementSystem.Models
+@{
+    var role = Context.Session.GetString("UserRole") ?? "User";
+    ViewData["Title"] = "Create Order";
+    Layout = role.ToLower() == "user" ? "_UserDashboardLayout" : "_DashboardLayout";
+    var isUser = role.ToLower() == "user";
+}
+
+<div class="container">
+    <h1>Create Order</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 900px;">
+        <form asp-action="Create" asp-controller="Order" method="post" id="orderForm">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <h3 style="color: #2d5a5a; margin-top: 0;">Customer Information <span style="font-size: 14px; font-weight: normal; color: #666;">(Optional)</span></h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label asp-for="CustomerName" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="CustomerName" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="CustomerEmail" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="CustomerEmail" type="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Optional" />
+                    <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label asp-for="CustomerPhone" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="CustomerPhone" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="CustomerPhone" class="text-danger"></span>
+                </div>
+
+                <div>
+                    @if (isUser)
+                    {
+                        <input type="hidden" asp-for="Status" value="Pending" />
+                    }
+                    else
+                    {
+                        <label asp-for="Status" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                        <select asp-for="Status" name="Status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="Pending" selected>Pending</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    }
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label asp-for="ShippingAddress" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <textarea asp-for="ShippingAddress" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Optional"></textarea>
+                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+            </div>
+
+            <h3 style="color: #2d5a5a; margin-top: 30px;">Order Items</h3>
+            <div id="orderItems">
+                <div class="order-item" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd;">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; align-items: end;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Product</label>
+                                <select name="productIds" class="product-select" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="0">-- Select Product --</option>
+                                @if (ViewData["Products"] != null)
+                                {
+                                    @foreach (var item in (SelectList)ViewData["Products"]!)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Quantity</label>
+                            <input type="number" name="quantities" class="quantity-input" min="1" value="1" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                        </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Unit Price</label>
+                                @if (isUser)
+                                {
+                                    <input type="number" name="unitPrices" class="price-input" step="0.01" min="0" required readonly value="0.00" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background:#f5f5f5;" />
+                                }
+                                else
+                                {
+                                    <input type="number" name="unitPrices" class="price-input" step="0.01" min="0" required value="0.00" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                                }
+                            </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Total</label>
+                            <input type="text" class="item-total" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f5f5f5;" value="$0.00" />
+                        </div>
+                        <div>
+                            <button type="button" class="remove-item" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="addItemBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-bottom: 20px;">+ Add Product</button>
+
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: #2d5a5a;">Total Amount:</h3>
+                    <h2 style="margin: 0; color: #2d5a5a;" id="totalAmount">$0.00</h2>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Notes" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <textarea asp-for="Notes" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" id="submitBtn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Create Order</button>
+                <a href="/Order" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isUser = '@(isUser ? "true" : "false")';
+            const addItemBtn = document.getElementById('addItemBtn');
+            const orderItems = document.getElementById('orderItems');
+            
+            // Fetch product prices via AJAX when needed
+            async function getProductPrice(productId) {
+                try {
+                    const response = await fetch(`/Order/GetProductPrice/${productId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.price || 0;
+                    }
+                } catch (error) {
+                    console.error('Error fetching product price:', error);
+                }
+                return 0;
+            }
+
+            function addOrderItem() {
+                // Clone the first product select to get all options
+                const firstSelect = document.querySelector('.product-select');
+                const optionsHtml = firstSelect.innerHTML;
+                
+                const itemHtml = `
+                    <div class="order-item" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd;">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; align-items: end;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Product</label>
+                                <select name="productIds" class="product-select" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    ${optionsHtml}
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Quantity</label>
+                                <input type="number" name="quantities" class="quantity-input" min="1" value="1" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Unit Price</label>
+                                @if (isUser)
+                                {
+                                    <input type="number" name="unitPrices" class="price-input" step="0.01" min="0" required readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background:#f5f5f5;" />
+                                }
+                                else
+                                {
+                                    <input type="number" name="unitPrices" class="price-input" step="0.01" min="0" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                                }
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Total</label>
+                                <input type="text" class="item-total" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f5f5f5;" value="$0.00" />
+                            </div>
+                            <div>
+                                <button type="button" class="remove-item" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                orderItems.insertAdjacentHTML('beforeend', itemHtml);
+                attachEventListeners();
+            }
+
+            function attachEventListeners() {
+                document.querySelectorAll('.product-select').forEach(select => {
+                    if (!select.hasAttribute('data-listener')) {
+                        select.setAttribute('data-listener', 'true');
+                        select.addEventListener('change', async function() {
+                            const productId = this.value;
+                            const priceInput = this.closest('.order-item').querySelector('.price-input');
+                            
+                            if (productId && productId !== '0') {
+                                const price = await getProductPrice(productId);
+                                priceInput.value = (price || 0).toFixed(2);
+                                calculateItemTotal(this.closest('.order-item'));
+                            } else {
+                                priceInput.value = '0.00';
+                                calculateItemTotal(this.closest('.order-item'));
+                            }
+                        });
+                    }
+                });
+
+                document.querySelectorAll('.quantity-input, .price-input').forEach(input => {
+                    if (!input.hasAttribute('data-listener')) {
+                        input.setAttribute('data-listener', 'true');
+                        input.addEventListener('input', function() {
+                            calculateItemTotal(this.closest('.order-item'));
+                        });
+                    }
+                });
+
+                document.querySelectorAll('.remove-item').forEach(btn => {
+                    if (!btn.hasAttribute('data-listener')) {
+                        btn.setAttribute('data-listener', 'true');
+                        btn.addEventListener('click', function() {
+                            if (document.querySelectorAll('.order-item').length > 1) {
+                                this.closest('.order-item').remove();
+                                calculateTotal();
+                            } else {
+                                alert('At least one product is required.');
+                            }
+                        });
+                    }
+                });
+            }
+
+            function calculateItemTotal(item) {
+                const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
+                const price = parseFloat(item.querySelector('.price-input').value) || 0;
+                const total = quantity * price;
+                item.querySelector('.item-total').value = '$' + total.toFixed(2);
+                calculateTotal();
+            }
+
+            function calculateTotal() {
+                let total = 0;
+                document.querySelectorAll('.order-item').forEach(item => {
+                    const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
+                    const price = parseFloat(item.querySelector('.price-input').value) || 0;
+                    total += quantity * price;
+                });
+                document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+            }
+
+            addItemBtn.addEventListener('click', addOrderItem);
+            attachEventListeners();
+
+            // Form submission validation
+            const form = document.getElementById('orderForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function(e) {
+                // Validate that at least one product is selected and has valid qty/price
+                const productSelects = document.querySelectorAll('.product-select');
+                let hasValidProduct = false;
+                productSelects.forEach(select => {
+                    const val = select.value;
+                    if (val && val !== '0') {
+                        const quantity = parseFloat(select.closest('.order-item').querySelector('.quantity-input').value) || 0;
+                        const price = parseFloat(select.closest('.order-item').querySelector('.price-input').value) || 0;
+                        if (quantity > 0 && price >= 0) {
+                            hasValidProduct = true;
+                        }
+                    }
+                });
+
+                if (!hasValidProduct) {
+                    e.preventDefault();
+                    alert('Please add at least one product with valid quantity and price.');
+                    return false;
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    .text-danger {
+        color: #dc3545;
+        font-size: 14px;
+    }
+</style>

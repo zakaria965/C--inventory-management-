@@ -1,0 +1,54 @@
+@model InventoryManagementSystem.Models.MissionVision
+@{
+    ViewData["Title"] = "Edit Mission & Vision";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <h1>Edit Mission & Vision</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 800px;">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div style="margin-bottom: 20px;">
+                <label asp-for="MissionStatement" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                    <i class="fas fa-bullseye" style="margin-right: 8px; color: #2d5a5a;"></i>Mission Statement <span style="color: #dc3545;">*</span>
+                </label>
+                <textarea asp-for="MissionStatement" rows="6" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical;" placeholder="Enter your mission statement..."></textarea>
+                <span asp-validation-for="MissionStatement" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label asp-for="VisionStatement" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                    <i class="fas fa-eye" style="margin-right: 8px; color: #2d5a5a;"></i>Vision Statement <span style="color: #dc3545;">*</span>
+                </label>
+                <textarea asp-for="VisionStatement" rows="6" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical;" placeholder="Enter your vision statement..."></textarea>
+                <span asp-validation-for="VisionStatement" class="text-danger"></span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button type="submit" style="background-color: #d4a574; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Update</button>
+                <a href="/MissionVision" style="background-color: #6c757d; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+    .alert { padding: 12px 20px; margin-bottom: 20px; border-radius: 4px; }
+    .alert-danger { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; }
+    .text-danger { color: #dc3545; font-size: 14px; margin-top: 5px; display: block; }
+</style>
+
+

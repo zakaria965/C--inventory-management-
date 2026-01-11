@@ -1,0 +1,320 @@
+@model IEnumerable<InventoryManagementSystem.Models.Supplier>
+@{
+    ViewData["Title"] = "Suppliers";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1>Suppliers</h1>
+            <p style="color: #666; margin: 5px 0 0 0;">Manage your suppliers.</p>
+        </div>
+        <a href="/Supplier/Create" class="btn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Add Supplier</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <form method="get" action="/Supplier" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" name="searchString" value="@ViewBag.SearchString" placeholder="Search suppliers..." style="flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <select name="categoryFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Categories</option>
+                @if (ViewBag.Categories != null)
+                {
+                    @foreach (var cat in (List<string>)ViewBag.Categories)
+                    {
+                        <option value="@cat" selected="@(ViewBag.CategoryFilter == cat)">@cat</option>
+                    }
+                }
+            </select>
+            <select name="statusFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Statuses</option>
+                <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Active</option>
+                <option value="Inactive" selected="@(ViewBag.StatusFilter == "Inactive")">Inactive</option>
+            </select>
+            <button type="submit" style="background-color: #2d5a5a; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            <a href="/Supplier" style="background-color: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Clear</a>
+        </form>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #2d5a5a; color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Supplier Name</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Category</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Contact Person</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Phone</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Status</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var supplier in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px; border: 1px solid #ddd;">@supplier.Name</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@supplier.Category</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(supplier.ContactPersonName ?? "N/A")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(supplier.PhoneNumber ?? "N/A")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(supplier.EmailAddress ?? "N/A")</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                @if (supplier.IsActive)
+                                {
+                                    <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Active</span>
+                                }
+                                else
+                                {
+                                    <span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Inactive</span>
+                                }
+                            </td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                <a href="/Supplier/Details/@supplier.Id" style="color: #2d5a5a; margin: 0 5px;">View</a>
+                                <a href="/Supplier/Edit/@supplier.Id" style="color: #d4a574; margin: 0 5px;">Edit</a>
+                                <form method="post" action="/Supplier/ToggleStatus/@supplier.Id" style="display: inline;">
+                                    <button type="button" onclick="showStatusModal(@supplier.Id, '@supplier.Name', @supplier.IsActive.ToString().ToLower());" style="background: @(supplier.IsActive ? "#ffc107" : "#28a745"); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">
+                                        @(supplier.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                                <button type="button" onclick="showDeleteModal(@supplier.Id, '@supplier.Name');" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" style="padding: 20px; text-align: center; border: 1px solid #ddd;">No suppliers found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Beautiful Delete Confirmation Modal -->
+<div id="deleteSupplierModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px);" onclick="if(event.target === this) closeDeleteSupplierModal();">
+    <div style="background: white; border-radius: 20px; box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4); max-width: 480px; width: 90%; padding: 0; overflow: hidden; animation: slideInModal 0.3s ease-out;">
+        <!-- Modal Header -->
+        <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); padding: 30px; text-align: center; position: relative;">
+            <div style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 3px solid rgba(255, 255, 255, 0.3);">
+                <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: white;"></i>
+            </div>
+            <h2 style="color: white; margin: 0; font-size: 26px; font-weight: 600; letter-spacing: 0.5px;">Confirm Deletion</h2>
+        </div>
+        
+        <!-- Modal Body -->
+        <div style="padding: 35px 30px;">
+            <p style="color: #333; font-size: 17px; line-height: 1.7; margin: 0 0 25px 0; text-align: center; font-weight: 500;">
+                Are you sure you want to delete this supplier?
+            </p>
+            <div style="background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%); border-left: 4px solid #dc3545; padding: 18px; border-radius: 10px; margin: 25px 0;">
+                <p style="margin: 0; font-weight: 600; color: #dc3545; font-size: 18px; text-align: center;" id="deleteSupplierName"></p>
+            </div>
+            <p style="color: #dc3545; font-size: 14px; text-align: center; margin: 20px 0 0 0; font-weight: 600;">
+                ⚠️ This action cannot be undone!
+            </p>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="padding: 25px 30px; background: #f8f9fa; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #e9ecef;">
+            <button type="button" onclick="closeDeleteSupplierModal()" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; border: none; padding: 14px 35px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <form id="deleteSupplierForm" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 14px 35px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); transition: all 0.3s;">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Beautiful Status Change Confirmation Modal -->
+<div id="statusSupplierModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px);" onclick="if(event.target === this) closeStatusSupplierModal();">
+    <div style="background: white; border-radius: 20px; box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4); max-width: 480px; width: 90%; padding: 0; overflow: hidden; animation: slideInModal 0.3s ease-out;">
+        <!-- Modal Header -->
+        <div id="statusModalHeader" style="padding: 30px; text-align: center; position: relative;">
+            <div style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 3px solid rgba(255, 255, 255, 0.3);">
+                <i id="statusModalIcon" class="fas" style="font-size: 40px; color: white;"></i>
+            </div>
+            <h2 style="color: white; margin: 0; font-size: 26px; font-weight: 600; letter-spacing: 0.5px;" id="statusModalTitle">Confirm Status Change</h2>
+        </div>
+        
+        <!-- Modal Body -->
+        <div style="padding: 35px 30px;">
+            <p style="color: #333; font-size: 17px; line-height: 1.7; margin: 0 0 25px 0; text-align: center; font-weight: 500;" id="statusModalMessage">
+                Are you sure you want to change the status of this supplier?
+            </p>
+            <div id="statusModalInfoBox" style="padding: 18px; border-radius: 10px; margin: 25px 0; border-left: 4px solid;">
+                <p style="margin: 0; font-weight: 600; font-size: 18px; text-align: center;" id="statusSupplierName"></p>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="padding: 25px 30px; background: #f8f9fa; display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #e9ecef;">
+            <button type="button" onclick="closeStatusSupplierModal()" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; border: none; padding: 14px 35px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <form id="statusSupplierForm" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" id="statusModalButton" style="color: white; border: none; padding: 14px 35px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: all 0.3s;">
+                    <i id="statusModalButtonIcon" class="fas"></i> <span id="statusModalButtonText">Confirm</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(supplierId, supplierName) {
+        document.getElementById('deleteSupplierName').textContent = supplierName || 'Unknown Supplier';
+        document.getElementById('deleteSupplierForm').action = `/Supplier/Delete/${supplierId}`;
+        document.getElementById('deleteSupplierModal').style.display = 'flex';
+    }
+
+    function closeDeleteSupplierModal() {
+        document.getElementById('deleteSupplierModal').style.display = 'none';
+    }
+
+    function showStatusModal(supplierId, supplierName, isActive) {
+        const action = isActive ? 'deactivate' : 'activate';
+        const actionText = isActive ? 'Deactivate' : 'Activate';
+        const header = document.getElementById('statusModalHeader');
+        const icon = document.getElementById('statusModalIcon');
+        const title = document.getElementById('statusModalTitle');
+        const message = document.getElementById('statusModalMessage');
+        const infoBox = document.getElementById('statusModalInfoBox');
+        const supplierNameEl = document.getElementById('statusSupplierName');
+        const button = document.getElementById('statusModalButton');
+        const buttonIcon = document.getElementById('statusModalButtonIcon');
+        const buttonText = document.getElementById('statusModalButtonText');
+
+        // Set supplier name
+        supplierNameEl.textContent = supplierName || 'Unknown Supplier';
+
+        if (isActive) {
+            // Deactivate - Orange/Yellow theme
+            header.style.background = 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)';
+            icon.className = 'fas fa-pause-circle';
+            title.textContent = 'Confirm Deactivation';
+            message.textContent = `Are you sure you want to deactivate this supplier?`;
+            infoBox.style.background = 'linear-gradient(135deg, #fff8e1 0%, #ffe0b2 100%)';
+            infoBox.style.borderLeftColor = '#ffc107';
+            supplierNameEl.style.color = '#f57c00';
+            button.style.background = 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)';
+            buttonIcon.className = 'fas fa-pause-circle';
+            buttonText.textContent = 'Deactivate';
+        } else {
+            // Activate - Green theme
+            header.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+            icon.className = 'fas fa-check-circle';
+            title.textContent = 'Confirm Activation';
+            message.textContent = `Are you sure you want to activate this supplier?`;
+            infoBox.style.background = 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)';
+            infoBox.style.borderLeftColor = '#28a745';
+            supplierNameEl.style.color = '#2e7d32';
+            button.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+            buttonIcon.className = 'fas fa-check-circle';
+            buttonText.textContent = 'Activate';
+        }
+
+        document.getElementById('statusSupplierForm').action = `/Supplier/ToggleStatus/${supplierId}`;
+        document.getElementById('statusSupplierModal').style.display = 'flex';
+    }
+
+    function closeStatusSupplierModal() {
+        document.getElementById('statusSupplierModal').style.display = 'none';
+    }
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const deleteModal = document.getElementById('deleteSupplierModal');
+            const statusModal = document.getElementById('statusSupplierModal');
+            if (deleteModal && deleteModal.style.display === 'flex') {
+                closeDeleteSupplierModal();
+            }
+            if (statusModal && statusModal.style.display === 'flex') {
+                closeStatusSupplierModal();
+            }
+        }
+    });
+</script>
+
+<style>
+    @@keyframes slideInModal {
+        from {
+            opacity: 0;
+            transform: translateY(-60px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    #deleteSupplierModal button:hover,
+    #statusSupplierModal button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    #deleteSupplierModal button:active,
+    #statusSupplierModal button:active {
+        transform: translateY(0);
+    }
+
+    #deleteSupplierModal button i,
+    #statusSupplierModal button i {
+        margin-right: 8px;
+    }
+</style>
+
+<style>
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+

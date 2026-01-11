@@ -1,0 +1,133 @@
+@model IEnumerable<InventoryManagementSystem.Models.Outgoing>
+@{
+    ViewData["Title"] = "Outgoing History";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1>Outgoing History</h1>
+            <p style="color: #666; margin: 5px 0 0 0;">View your outgoing product history.</p>
+        </div>
+        <a href="/Outgoing/Create" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Record Outgoing</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <form method="get" action="/Outgoing/History" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: end;">
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Search</label>
+                <input type="text" name="searchString" value="@ViewBag.SearchString" placeholder="Search by product name, SKU, or recipient..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Start Date</label>
+                <input type="date" name="startDate" value="@(ViewBag.StartDate?.ToString("yyyy-MM-dd"))" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">End Date</label>
+                <input type="date" name="endDate" value="@(ViewBag.EndDate?.ToString("yyyy-MM-dd"))" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+                <button type="submit" style="background-color: #2d5a5a; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            </div>
+            <div>
+                <a href="/Outgoing/History" style="background-color: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #2d5a5a; color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Product</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">SKU</th>
+                    <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Quantity</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Reason</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Recipient</th>
+                    <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Price</th>
+                    <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Total Amount</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var outgoing in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px; border: 1px solid #ddd;">@outgoing.OutgoingDate.ToString("yyyy-MM-dd")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@outgoing.Product?.Name</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@outgoing.Product?.SKU</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">@outgoing.Quantity</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">
+                                @{
+                                    var reasonColor = outgoing.Reason switch
+                                    {
+                                        "Sale" => "#28a745",
+                                        "Damage" => "#dc3545",
+                                        "Transfer" => "#17a2b8",
+                                        "Return" => "#ffc107",
+                                        _ => "#6c757d"
+                                    };
+                                }
+                                <span style="background: @reasonColor; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">@outgoing.Reason</span>
+                            </td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(outgoing.Recipient ?? "N/A")</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">@(outgoing.OutgoingPrice.HasValue ? "$" + outgoing.OutgoingPrice.Value.ToString("N2") : "N/A")</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">@(outgoing.TotalAmount.HasValue ? "$" + outgoing.TotalAmount.Value.ToString("N2") : "N/A")</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                <a href="/Outgoing/Details/@outgoing.Id" style="color: #2d5a5a; margin: 0 5px;">View</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" style="padding: 20px; text-align: center; border: 1px solid #ddd;">No outgoing records found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <p style="margin: 0; color: #666;">
+                <strong>Total Records:</strong> @Model.Count() | 
+                <strong>Total Quantity:</strong> @Model.Sum(o => o.Quantity) | 
+                <strong>Total Amount:</strong> $@Model.Where(o => o.TotalAmount.HasValue).Sum(o => o.TotalAmount!.Value).ToString("N2")
+            </p>
+        </div>
+    }
+</div>
+
+<style>
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    table {
+        font-size: 14px;
+    }
+    tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>

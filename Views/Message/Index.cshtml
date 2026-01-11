@@ -1,0 +1,102 @@
+@model IEnumerable<InventoryManagementSystem.Models.Message>
+@{
+    var role = Context.Session.GetString("UserRole") ?? "User";
+    ViewData["Title"] = "Messages";
+    Layout = role.ToLower() == "user" ? "_UserDashboardLayout" : "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Messages</h1>
+        <a href="/Message/Create" class="btn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">New Message</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (ViewBag.UnreadCount > 0)
+    {
+        <div class="alert alert-warning">You have @ViewBag.UnreadCount unread message(s)</div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px;">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var message in Model)
+            {
+                <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; @(message.IsImportant ? "border-left: 4px solid #dc3545;" : "") @(!message.IsRead ? "background-color: #f8f9fa;" : "")">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 10px 0; color: #2d5a5a;">
+                                @if (message.IsImportant)
+                                {
+                                    <span style="color: #dc3545;">⚠️ </span>
+                                }
+                                @if (!message.IsRead)
+                                {
+                                    <span style="background: #007bff; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 5px;">NEW</span>
+                                }
+                                @if (message.MessageType == "Contact")
+                                {
+                                    <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 5px;">CONTACT</span>
+                                }
+                                @message.Title
+                            </h3>
+                            @if (message.MessageType == "Contact" && !string.IsNullOrEmpty(message.CustomerName))
+                            {
+                                <div style="background: #e8f5e9; padding: 10px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #28a745;">
+                                    <p style="margin: 5px 0; color: #2d5a5a;"><strong><i class="fas fa-user"></i> From:</strong> @message.CustomerName</p>
+                                    @if (!string.IsNullOrEmpty(message.EmailAddress))
+                                    {
+                                        <p style="margin: 5px 0; color: #2d5a5a;"><strong><i class="fas fa-envelope"></i> Email:</strong> @message.EmailAddress</p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(message.PhoneNumber))
+                                    {
+                                        <p style="margin: 5px 0; color: #2d5a5a;"><strong><i class="fas fa-phone"></i> Phone:</strong> @message.PhoneNumber</p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(message.Subject))
+                                    {
+                                        <p style="margin: 5px 0; color: #2d5a5a;"><strong><i class="fas fa-tag"></i> Subject:</strong> @message.Subject</p>
+                                    }
+                                </div>
+                            }
+                            <p style="margin: 10px 0; color: #666; white-space: pre-wrap;">@message.Content</p>
+                            <small style="color: #999;">Created: @message.CreatedDate.ToString("yyyy-MM-dd HH:mm")</small>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <a href="/Message/Details/@message.Id" style="color: #2d5a5a; padding: 5px 10px; text-decoration: none;">View</a>
+                            @if (!message.IsRead)
+                            {
+                                <form method="post" action="/Message/MarkAsRead/@message.Id" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Mark Read</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form method="post" action="/Message/MarkAsUnread/@message.Id" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Mark Unread</button>
+                                </form>
+                            }
+                            <a href="/Message/Delete/@message.Id" style="color: #dc3545; padding: 5px 10px; text-decoration: none;">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p style="text-align: center; padding: 40px; color: #999;">No messages found.</p>
+        }
+    </div>
+</div>
+
+<style>
+    .alert { padding: 12px 20px; margin-bottom: 20px; border-radius: 4px; }
+    .alert-success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+    .alert-warning { color: #856404; background-color: #fff3cd; border: 1px solid #16a8e6ff; }
+</style>
+

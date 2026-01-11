@@ -1,0 +1,49 @@
+@using Microsoft.AspNetCore.Http
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Inventory (User)</title>
+    <link rel="stylesheet" href="~/css/user-dashboard.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class="user-dashboard-body">
+    <header class="user-header">
+        <div class="user-header-inner">
+            <div class="brand">Inventory — User</div>
+            <div class="header-actions">
+                <div class="user-info">
+                    <div class="avatar">@(Context.Session.GetString("UserName")?.Substring(0,1)?.ToUpper() ?? "U")</div>
+                    <div class="user-meta">
+                        <div class="name">@(Context.Session.GetString("UserName") ?? "User")</div>
+                        <div class="email">@(Context.Session.GetString("UserEmail") ?? "user@example.com")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="user-main">
+        <aside class="user-side">
+            <nav>
+                <a href="/Dashboard/UserDashboard" class="ud-nav-item active">Home</a>
+                <a href="/Inventory" class="ud-nav-item">Browse Inventory</a>
+                <a href="/Order/Create" class="ud-nav-item">Create Order</a>
+                <a href="/About" class="ud-nav-item">About</a>
+                <a href="/Contact" class="ud-nav-item">Contact</a>
+                <a href="/Account/Logout" class="ud-nav-item">Logout</a>
+            </nav>
+        </aside>
+
+        <section class="user-content">
+            <div class="container">
+                @RenderBody()
+            </div>
+        </section>
+    </main>
+
+    <!-- Logout handled via confirmation page at /Account/Logout -->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

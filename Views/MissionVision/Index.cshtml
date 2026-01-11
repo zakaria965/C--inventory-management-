@@ -1,0 +1,63 @@
+@model InventoryManagementSystem.Models.MissionVision
+@{
+    ViewData["Title"] = "Mission & Vision";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Mission & Vision</h1>
+        @if (Model == null)
+        {
+            <a href="/MissionVision/Create" class="btn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Add Mission & Vision</a>
+        }
+        else
+        {
+            <a href="/MissionVision/Edit/@Model.Id" class="btn" style="background-color: #d4a574; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Edit Mission & Vision</a>
+        }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (Model == null)
+    {
+        <div style="background: white; padding: 40px; border-radius: 8px; text-align: center;">
+            <p style="color: #666; font-size: 18px; margin-bottom: 20px;">No Mission & Vision has been set yet.</p>
+            <a href="/MissionVision/Create" style="background-color: #2d5a5a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block;">Create Mission & Vision</a>
+        </div>
+    }
+    else
+    {
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 25px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #2d5a5a;">
+                <h2 style="color: #2d5a5a; margin: 0 0 15px 0;">
+                    <i class="fas fa-bullseye"></i> Mission Statement
+                </h2>
+                <p style="color: #333; line-height: 1.8; margin: 0; white-space: pre-wrap;">@Model.MissionStatement</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 25px; border-radius: 8px; border-left: 5px solid #2d5a5a;">
+                <h2 style="color: #2d5a5a; margin: 0 0 15px 0;">
+                    <i class="fas fa-eye"></i> Vision Statement
+                </h2>
+                <p style="color: #333; line-height: 1.8; margin: 0; white-space: pre-wrap;">@Model.VisionStatement</p>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; text-align: right;">
+                <small style="color: #999;">
+                    <i class="fas fa-clock"></i> Last Updated: @Model.LastUpdated.ToString("yyyy-MM-dd HH:mm")
+                </small>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .alert { padding: 12px 20px; margin-bottom: 20px; border-radius: 4px; }
+    .alert-success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+</style>
+
+

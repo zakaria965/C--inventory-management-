@@ -1,0 +1,118 @@
+@model InventoryManagementSystem.Models.Employee
+@{
+    ViewData["Title"] = "Edit Employee";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <h1>Edit Employee</h1>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 600px;">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label asp-for="FirstName" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="FirstName" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="LastName" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="LastName" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Email" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <input asp-for="Email" type="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Phone" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <input asp-for="Phone" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label asp-for="Position" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="Position" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="Position" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Department" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="Department" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="Department" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label asp-for="HireDate" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="HireDate" type="date" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="HireDate" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Salary" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="Salary" type="number" step="0.01" min="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="Salary" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Address" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <textarea asp-for="Address" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>
+                    <input type="checkbox" asp-for="IsActive" /> Is Active
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" style="background-color: #2d5a5a; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Update Employee</button>
+                <a href="/Employee" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    .text-danger {
+        color: #dc3545;
+        font-size: 14px;
+    }
+</style>
+
+

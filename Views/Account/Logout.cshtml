@@ -1,0 +1,41 @@
+@{
+    var role = Context.Session.GetString("UserRole") ?? "User";
+    ViewData["Title"] = "Logout";
+    Layout = role.ToLower() == "user" ? "_UserDashboardLayout" : "_DashboardLayout";
+}
+
+<div class="container" style="max-width:850px; margin-top:40px;">
+    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 30px rgba(13,52,48,0.05);">
+        <div style="display:flex; gap:20px; align-items:center;">
+            <div style="width:84px; height:84px; border-radius:50%; background: linear-gradient(135deg,#2d5a5a,#3d7a7a); display:flex; align-items:center; justify-content:center; color:#fff; font-size:32px; font-weight:700;">
+                @(Context.Session.GetString("UserName")?.Substring(0,1)?.ToUpper() ?? "U")
+            </div>
+            <div>
+                <h2 style="margin:0; color:#164b48;">Ready to sign out?</h2>
+                <p style="margin:6px 0 0 0; color:#556;">You're currently signed in as <strong>@(Context.Session.GetString("UserName") ?? "User")</strong> &mdash; <small style="color:#777;">@(Context.Session.GetString("UserEmail") ?? "")</small></p>
+            </div>
+        </div>
+
+        <hr style="margin:20px 0 24px; border:none; height:1px; background: linear-gradient(90deg, rgba(0,0,0,0.04), rgba(0,0,0,0));" />
+
+        <p style="color:#334; font-size:15px;">Choose "Logout" to end your session. Any unsaved changes will be lost.</p>
+
+        <div style="margin-top:22px; display:flex; gap:12px; align-items:center;">
+            <form asp-action="LogoutConfirmed" asp-controller="Account" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" style="background: linear-gradient(135deg,#16a085,#0e6b63); color:white; border:none; padding:12px 24px; border-radius:10px; font-size:16px; cursor:pointer; box-shadow:0 8px 20px rgba(14,107,99,0.18);">Logout</button>
+            </form>
+
+            <a href="/Dashboard/UserDashboard" style="display:inline-block; background:#f1f6f5; color:#164b48; padding:10px 20px; border-radius:10px; text-decoration:none; border:1px solid #e6efee;">Cancel</a>
+
+            <div style="margin-left:auto; color:#888; font-size:13px;">Need help? <a href="/Contact" style="color:#0b6b63; text-decoration:none;">Contact support</a></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media (max-width:720px) {
+        .container { padding: 0 12px; }
+        .container > div { padding: 20px; }
+    }
+</style>

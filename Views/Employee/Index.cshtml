@@ -1,0 +1,133 @@
+@model IEnumerable<InventoryManagementSystem.Models.Employee>
+@{
+    ViewData["Title"] = "Employees";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1>Employees</h1>
+            <p style="color: #666; margin: 5px 0 0 0;">Manage your employees.</p>
+        </div>
+        <a href="/Employee/Create" class="btn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Add Employee</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <form method="get" action="/Employee" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" name="searchString" value="@ViewBag.SearchString" placeholder="Search employees..." style="flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <select name="departmentFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Departments</option>
+                @if (ViewBag.Departments != null)
+                {
+                    @foreach (var dept in (List<string>)ViewBag.Departments)
+                    {
+                        <option value="@dept" selected="@(ViewBag.DepartmentFilter == dept)">@dept</option>
+                    }
+                }
+            </select>
+            <button type="submit" style="background-color: #2d5a5a; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            <a href="/Employee" style="background-color: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Clear</a>
+        </form>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #040505ff; color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Name</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Phone</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Position</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Department</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Hire Date</th>
+                    <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Salary</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Status</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var employee in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px; border: 1px solid #ddd;">@employee.FullName</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@employee.Email</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(employee.Phone ?? "N/A")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(employee.Position ?? "N/A")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(employee.Department ?? "N/A")</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(employee.HireDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">@(employee.Salary.HasValue ? "$" + employee.Salary.Value.ToString("N2") : "N/A")</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                @if (employee.IsActive)
+                                {
+                                    <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Active</span>
+                                }
+                                else
+                                {
+                                    <span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Inactive</span>
+                                }
+                            </td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                <a href="/Employee/Details/@employee.Id" style="color: #2d5a5a; margin: 0 5px;">View</a>
+                                <a href="/Employee/Edit/@employee.Id" style="color: #d4a574; margin: 0 5px;">Edit</a>
+                                <form method="post" action="/Employee/ToggleStatus/@employee.Id" style="display: inline;">
+                                    <button type="submit" style="background: @(employee.IsActive ? "#ffc107" : "#28a745"); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">
+                                        @(employee.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                                <a href="/Employee/Delete/@employee.Id" style="color: #dc3545; margin: 0 5px;">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" style="padding: 20px; text-align: center; border: 1px solid #ddd;">No employees found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+</style>

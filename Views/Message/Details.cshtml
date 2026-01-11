@@ -1,0 +1,135 @@
+@model InventoryManagementSystem.Models.Message
+@{
+    ViewData["Title"] = "Message Details";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Message Details</h1>
+        <a href="/Message" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Back to Messages</a>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #e0e0e0;">
+            <div>
+                <h2 style="margin: 0 0 10px 0; color: #2d5a5a;">
+                    @if (Model.IsImportant)
+                    {
+                        <span style="color: #dc3545;">⚠️ </span>
+                    }
+                    @if (Model.MessageType == "Contact")
+                    {
+                        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">CONTACT</span>
+                    }
+                    @Model.Title
+                </h2>
+                <div style="display: flex; gap: 15px; margin-top: 10px;">
+                    @if (!Model.IsRead)
+                    {
+                        <span style="background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">NEW</span>
+                    }
+                    else
+                    {
+                        <span style="background: #6c757d; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px;">READ</span>
+                    }
+                    <small style="color: #999;">
+                        <i class="fas fa-calendar"></i> @Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.MessageType == "Contact" && !string.IsNullOrEmpty(Model.CustomerName))
+        {
+            <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #28a745;">
+                <h3 style="margin: 0 0 15px 0; color: #2d5a5a;">
+                    <i class="fas fa-user-circle"></i> Contact Information
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div>
+                        <strong style="color: #2d5a5a; display: block; margin-bottom: 5px;"><i class="fas fa-user"></i> Customer Name:</strong>
+                        <span style="color: #333;">@Model.CustomerName</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.EmailAddress))
+                    {
+                        <div>
+                            <strong style="color: #2d5a5a; display: block; margin-bottom: 5px;"><i class="fas fa-envelope"></i> Email:</strong>
+                            <a href="mailto:@Model.EmailAddress" style="color: #007bff; text-decoration: none;">@Model.EmailAddress</a>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                    {
+                        <div>
+                            <strong style="color: #2d5a5a; display: block; margin-bottom: 5px;"><i class="fas fa-phone"></i> Phone:</strong>
+                            <a href="tel:@Model.PhoneNumber" style="color: #007bff; text-decoration: none;">@Model.PhoneNumber</a>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Subject))
+                    {
+                        <div style="grid-column: 1 / -1;">
+                            <strong style="color: #2d5a5a; display: block; margin-bottom: 5px;"><i class="fas fa-tag"></i> Subject:</strong>
+                            <span style="color: #333;">@Model.Subject</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div style="margin-bottom: 25px;">
+            <h3 style="margin: 0 0 15px 0; color: #2d5a5a;">
+                <i class="fas fa-comment-alt"></i> Message Content
+            </h3>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #2d5a5a; white-space: pre-wrap; line-height: 1.6; color: #333;">
+                @Model.Content
+            </div>
+        </div>
+
+        @if (Model.ReadDate.HasValue)
+        {
+            <div style="padding: 15px; background: #e9ecef; border-radius: 8px; margin-bottom: 20px;">
+                <small style="color: #666;">
+                    <i class="fas fa-check-circle" style="color: #28a745;"></i> Read on: @Model.ReadDate.Value.ToString("yyyy-MM-dd HH:mm")
+                </small>
+            </div>
+        }
+
+        <div style="display: flex; gap: 10px; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+            @if (!Model.IsRead)
+            {
+                <form method="post" action="/Message/MarkAsRead/@Model.Id" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-check"></i> Mark as Read
+                    </button>
+                </form>
+            }
+            else
+            {
+                <form method="post" action="/Message/MarkAsUnread/@Model.Id" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-envelope"></i> Mark as Unread
+                    </button>
+                </form>
+            }
+            <a href="/Message/Delete/@Model.Id" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+            <a href="/Message" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    a:hover {
+        opacity: 0.9;
+        text-decoration: none;
+    }
+    button:hover {
+        opacity: 0.9;
+    }
+</style>
+

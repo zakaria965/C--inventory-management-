@@ -1,0 +1,104 @@
+@model IEnumerable<InventoryManagementSystem.Models.Order>
+@{
+    ViewData["Title"] = "Pending Orders";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div>
+            <h1>Pending Orders</h1>
+            <p style="color:#666; margin:5px 0 0 0;">Review and process pending orders.</p>
+        </div>
+        <div>
+            <a href="/Order" style="background-color:#6c757d; color:white; padding:8px 14px; text-decoration:none; border-radius:4px;">All Orders</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var order in Model)
+        {
+            <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px;">
+                    <div>
+                        <h3 style="margin:0;">@order.OrderNumber</h3>
+                        <p style="margin:6px 0 0 0; color:#555;">Placed: @order.OrderDate.ToString("yyyy-MM-dd HH:mm")</p>
+                        <p style="margin:6px 0 0 0; color:#555;">Customer: @(order.CustomerName ?? "N/A")</p>
+                        <p style="margin:6px 0 0 0; color:#555;">Email: @(order.CustomerEmail ?? "N/A")</p>
+                        <p style="margin:6px 0 0 0; color:#555;">Phone: @(order.CustomerPhone ?? "N/A")</p>
+                        <p style="margin:6px 0 0 0; color:#555;">Shipping: @(order.ShippingAddress ?? "N/A")</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <p style="margin:0; font-weight:600;">Total: $@order.TotalAmount.ToString("N2")</p>
+                        <p style="margin:6px 0 0 0;">Status: <span style="background:#ffc107; color:white; padding:4px 8px; border-radius:4px;">@order.Status</span></p>
+                        @if (order.PaymentDate != null)
+                        {
+                            <p style="margin:6px 0 0 0;">Payment Date: @order.PaymentDate?.ToString("yyyy-MM-dd HH:mm")</p>
+                        }
+                        <div style="margin-top:10px; display:flex; gap:8px; justify-content:flex-end;">
+                            <form method="post" action="/Order/Accept/@order.Id" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" style="background:#28a745; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">Accept</button>
+                            </form>
+                            <form method="post" action="/Order/Deny/@order.Id" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">Deny</button>
+                            </form>
+                            <a href="/Order/Details/@order.Id" style="background:#6c757d; color:white; padding:8px 12px; text-decoration:none; border-radius:6px;">Details</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8f9fa;">
+                                <th style="padding:10px; text-align:left; border:1px solid #eee;">Product</th>
+                                <th style="padding:10px; text-align:left; border:1px solid #eee;">SKU</th>
+                                <th style="padding:10px; text-align:right; border:1px solid #eee;">Quantity</th>
+                                <th style="padding:10px; text-align:right; border:1px solid #eee;">Unit Price</th>
+                                <th style="padding:10px; text-align:right; border:1px solid #eee;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <tr>
+                                    <td style="padding:10px; border:1px solid #eee;">@(item.Product?.Name ?? "(deleted)")</td>
+                                    <td style="padding:10px; border:1px solid #eee;">@(item.Product?.SKU ?? "N/A")</td>
+                                    <td style="padding:10px; text-align:right; border:1px solid #eee;">@item.Quantity</td>
+                                    <td style="padding:10px; text-align:right; border:1px solid #eee;">$@item.UnitPrice.ToString("N2")</td>
+                                    <td style="padding:10px; text-align:right; border:1px solid #eee;">$@item.TotalPrice.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div style="background:white; padding:20px; border-radius:8px;">No pending orders.</div>
+    }
+</div>
+
+<style>
+    .alert {
+        padding:12px 20px;
+        margin-bottom:20px;
+        border-radius:4px;
+    }
+    .alert-success { color:#155724; background-color:#d4edda; border-color:#c3e6cb; }
+    .alert-danger { color:#721c24; background-color:#f8d7da; border-color:#f5c6cb; }
+</style>

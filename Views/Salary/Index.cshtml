@@ -1,0 +1,218 @@
+@model IEnumerable<InventoryManagementSystem.Models.Salary>
+@{
+    ViewData["Title"] = "Salary Management";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Salary Management</h1>
+        <a href="/Salary/Create" class="btn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Add Salary Record</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px 20px; margin-bottom: 20px; border-radius: 4px;">@TempData["Error"]</div>
+    }
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+        <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: white;">
+            <h3 style="margin: 0; color: white;">Total Paid</h3>
+            <p style="font-size: 28px; font-weight: bold; margin: 10px 0 0 0; color: white;">$@ViewBag.TotalPaid.ToString("N2")</p>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: white;">
+            <h3 style="margin: 0; color: white;">Total Unpaid</h3>
+            <p style="font-size: 28px; font-weight: bold; margin: 10px 0 0 0; color: white;">$@ViewBag.TotalUnpaid.ToString("N2")</p>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <form method="get" action="/Salary" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" name="searchString" value="@ViewBag.SearchString" placeholder="Search employee..." style="flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <input type="number" name="month" value="@ViewBag.Month" placeholder="Month" min="1" max="12" style="width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <input type="number" name="year" value="@ViewBag.Year" placeholder="Year" min="2000" max="2100" style="width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <select name="isPaid" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All</option>
+                <option value="true" selected="@(ViewBag.IsPaid == true)">Paid</option>
+                <option value="false" selected="@(ViewBag.IsPaid == false)">Unpaid</option>
+            </select>
+            <button type="submit" style="background-color: #2d5a5a; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            <a href="/Salary" style="background-color: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Clear</a>
+        </form>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #2d5a5a; color: white;">
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Employee</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Month/Year</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Type</th>
+                        <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Salary</th>
+                        <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Advance</th>
+                        <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Net Salary</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Payment Date</th>
+                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Status</th>
+                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var salary in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 12px; border: 1px solid #ddd;">@salary.Employee?.FullName</td>
+                                <td style="padding: 12px; border: 1px solid #ddd;">@salary.Month/@salary.Year</td>
+                                <td style="padding: 12px; border: 1px solid #ddd;">@salary.SalaryType</td>
+                                <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">$@salary.SalaryAmount.ToString("N2")</td>
+                                <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">
+                                    @if (salary.AdvanceAmount > 0)
+                                    {
+                                        <span style="color: #ff9800; font-weight: 600;">$@salary.AdvanceAmount.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: #999;">$0.00</span>
+                                    }
+                                </td>
+                                <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">
+                                    <strong style="color: #28a745;">$@salary.NetSalary.ToString("N2")</strong>
+                                </td>
+                                <td style="padding: 12px; border: 1px solid #ddd;">@(salary.PaymentDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                @if (salary.IsPaid)
+                                {
+                                    <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Paid</span>
+                                }
+                                else
+                                {
+                                    <span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Unpaid</span>
+                                }
+                            </td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                <a href="/Salary/Details/@salary.Id" style="color: #2d5a5a; margin: 0 5px;">View</a>
+                                <a href="/Salary/Edit/@salary.Id" style="color: #070605ff; margin: 0 5px;">Edit</a>
+                                @if (!salary.IsPaid)
+                                {
+                                    <form method="post" action="/Salary/MarkAsPaid/@salary.Id" style="display: inline;">
+                                        <button type="submit" style="background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">Mark Paid</button>
+                                    </form>
+                                }
+                                <button type="button" onclick="showDeleteModal(@salary.Id, '@salary.Employee?.FullName', '@salary.Month/@salary.Year')" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" style="padding: 20px; text-align: center; border: 1px solid #ddd;">No salary records found.</td>
+                        </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Beautiful Delete Confirmation Modal -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); max-width: 450px; width: 90%; padding: 0; overflow: hidden; animation: slideIn 0.3s ease-out;">
+        <!-- Modal Header -->
+        <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); padding: 25px; text-align: center; position: relative;">
+            <div style="width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 36px; color: white;"></i>
+            </div>
+            <h2 style="color: white; margin: 0; font-size: 24px; font-weight: 600;">Confirm Deletion</h2>
+        </div>
+        
+        <!-- Modal Body -->
+        <div style="padding: 30px;">
+            <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0; text-align: center;">
+                Are you sure you want to delete the salary record for
+            </p>
+            <div style="background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%); border-left: 4px solid #dc3545; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; font-weight: 600; color: #dc3545; font-size: 18px; text-align: center;" id="deleteEmployeeName"></p>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px; text-align: center;" id="deleteMonthYear"></p>
+            </div>
+            <p style="color: #dc3545; font-size: 14px; text-align: center; margin: 20px 0 0 0; font-weight: 600;">
+                ⚠️ This action cannot be undone!
+            </p>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="padding: 20px 30px; background: #f8f9fa; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #e9ecef;">
+            <button type="button" onclick="closeDeleteModal()" style="background: #6c757d; color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.3s;">
+                Cancel
+            </button>
+            <form id="deleteForm" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); transition: all 0.3s;">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(salaryId, employeeName, monthYear) {
+        document.getElementById('deleteEmployeeName').textContent = employeeName || 'Unknown Employee';
+        document.getElementById('deleteMonthYear').textContent = `Period: ${monthYear}`;
+        document.getElementById('deleteForm').action = `/Salary/Delete/${salaryId}`;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+</script>
+
+<style>
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    #deleteModal button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    #deleteModal button:active {
+        transform: translateY(0);
+    }
+</style>
+
+<style>
+    .alert { padding: 12px 20px; margin-bottom: 20px; border-radius: 4px; }
+    .alert-success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+</style>
+

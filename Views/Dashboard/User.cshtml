@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "My Dashboard";
+}
+
+<div class="user-dashboard">
+    <h2>Welcome, @ViewBag.UserName</h2>
+    <p>Here are your recent orders:</p>
+
+    @if (ViewBag.UserOrders != null && ((IEnumerable<dynamic>)ViewBag.UserOrders).Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order Number</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in ViewBag.UserOrders)
+                {
+                    <tr>
+                        <td>@o.OrderNumber</td>
+                        <td>@((DateTime)o.OrderDate).ToString("yyyy-MM-dd")</td>
+                        <td>@o.Status</td>
+                        <td>@string.Format("{0:C}", o.TotalAmount)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">You have no orders yet.</div>
+    }
+</div>

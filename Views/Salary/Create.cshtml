@@ -1,0 +1,134 @@
+@model InventoryManagementSystem.Models.Salary
+@{
+    ViewData["Title"] = "Add Salary Record";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <h1>Add Salary Record</h1>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 600px;">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="EmployeeId" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <select asp-for="EmployeeId" asp-items="ViewBag.EmployeeId" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">-- Select Employee --</option>
+                </select>
+                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label asp-for="Month" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="Month" type="number" min="1" max="12" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="Month" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Year" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="Year" type="number" min="2000" max="2100" value="@DateTime.Now.Year" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="Year" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label asp-for="SalaryType" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <select asp-for="SalaryType" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="Monthly">Monthly</option>
+                        <option value="Hourly">Hourly</option>
+                    </select>
+                    <span asp-validation-for="SalaryType" class="text-danger"></span>
+                </div>
+
+                <div id="hoursWorkedDiv" style="display: none;">
+                    <label asp-for="HoursWorked" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                    <input asp-for="HoursWorked" type="number" step="0.01" min="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                    <span asp-validation-for="HoursWorked" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="SalaryAmount" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <input asp-for="SalaryAmount" id="SalaryAmount" type="number" step="0.01" min="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                <span asp-validation-for="SalaryAmount" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="AdvanceAmount" style="display: block; margin-bottom: 5px; font-weight: bold;">Advance Amount (Optional)</label>
+                <input asp-for="AdvanceAmount" id="AdvanceAmount" type="number" step="0.01" min="0" value="0" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                <small style="color: #666; font-size: 12px;">If employee took an advance, enter the amount here. It will be automatically subtracted from the salary.</small>
+                <span asp-validation-for="AdvanceAmount" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 15px; padding: 12px; background-color: #e8f5e9; border-left: 4px solid #28a745; border-radius: 4px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #155724;">Net Salary (After Advance Deduction)</label>
+                <div id="NetSalaryDisplay" style="font-size: 20px; font-weight: bold; color: #28a745;">$0.00</div>
+                <small style="color: #666; font-size: 12px;">This is the amount the employee will receive after advance deduction.</small>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>
+                    <input type="checkbox" asp-for="IsPaid" /> Mark as Paid
+                </label>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Notes" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <textarea asp-for="Notes" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" style="background-color: #2d5a5a; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Add Salary Record</button>
+                <a href="/Salary" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('SalaryType').addEventListener('change', function() {
+            var hoursDiv = document.getElementById('hoursWorkedDiv');
+            if (this.value === 'Hourly') {
+                hoursDiv.style.display = 'block';
+            } else {
+                hoursDiv.style.display = 'none';
+            }
+            calculateNetSalary();
+        });
+
+        function calculateNetSalary() {
+            const salaryAmount = parseFloat(document.getElementById('SalaryAmount').value) || 0;
+            const advanceAmount = parseFloat(document.getElementById('AdvanceAmount').value) || 0;
+            const netSalary = Math.max(0, salaryAmount - advanceAmount);
+            
+            document.getElementById('NetSalaryDisplay').textContent = '$' + netSalary.toFixed(2);
+            
+            // Show warning if advance exceeds salary
+            const advanceInput = document.getElementById('AdvanceAmount');
+            if (advanceAmount > salaryAmount && salaryAmount > 0) {
+                advanceInput.style.borderColor = '#dc3545';
+                advanceInput.style.backgroundColor = '#fff5f5';
+            } else {
+                advanceInput.style.borderColor = '#ddd';
+                advanceInput.style.backgroundColor = 'white';
+            }
+        }
+
+        document.getElementById('SalaryAmount').addEventListener('input', calculateNetSalary);
+        document.getElementById('AdvanceAmount').addEventListener('input', calculateNetSalary);
+        
+        // Calculate on page load
+        calculateNetSalary();
+    </script>
+}
+
+<style>
+    .text-danger { color: #dc3545; font-size: 14px; }
+</style>
+

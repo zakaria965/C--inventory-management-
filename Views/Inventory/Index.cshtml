@@ -1,0 +1,141 @@
+@model IEnumerable<InventoryManagementSystem.Models.Product>
+@{
+    var role = Context.Session.GetString("UserRole") ?? "User";
+    ViewData["Title"] = "Inventory";
+    Layout = role.ToLower() == "user" ? "_UserDashboardLayout" : "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Inventory</h1>
+        @if (role.ToLower() != "user")
+        {
+            <a href="/Product/Add" class="btn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Add Product</a>
+        }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (ViewBag.LowStockProducts != null && ((List<InventoryManagementSystem.Models.Product>)ViewBag.LowStockProducts).Count > 0)
+    {
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #d4a574;">
+            <h3 style="margin-top: 0; color: #856404;">⚠️ Low Stock Alert</h3>
+            <p>The following products are running low on stock:</p>
+            <ul>
+                @foreach (var product in (List<InventoryManagementSystem.Models.Product>)ViewBag.LowStockProducts)
+                {
+                    <li><strong>@product.Name</strong> - Current Stock: @product.QuantityInStock (Minimum: @product.MinimumStockLevel)</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <form method="get" action="/Inventory" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" name="searchString" value="@ViewBag.SearchString" placeholder="Search products..." style="flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <select name="categoryFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Categories</option>
+                @if (ViewBag.Categories != null)
+                {
+                    @foreach (var category in (List<string>)ViewBag.Categories)
+                    {
+                        <option value="@category" selected="@(ViewBag.CategoryFilter == category)">@category</option>
+                    }
+                }
+            </select>
+            <button type="submit" style="background-color: #2d5a5a; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+            <a href="/Inventory" style="background-color: #6c757d; color: white; padding: 8px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Clear</a>
+        </form>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #2d5a5a; color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Name</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Category</th>
+                    <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Available Quantity</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Status</th>
+                    @if (role.ToLower() != "user")
+                    {
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">SKU</th>
+                        <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Cost Price</th>
+                        <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Selling Price</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Supplier</th>
+                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Actions</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var product in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px; border: 1px solid #ddd;">@product.Name</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">@(product.Category ?? "N/A")</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">@product.QuantityInStock</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">
+                                @if (product.QuantityInStock == 0)
+                                {
+                                    <span style="color: orange; font-weight: bold;">Out of Stock</span>
+                                }
+                                else if (product.MinimumStockLevel.HasValue && product.QuantityInStock <= product.MinimumStockLevel.Value)
+                                {
+                                    <span style="color: red; font-weight: bold;">Low Stock</span>
+                                }
+                                else
+                                {
+                                    <span style="color: green; font-weight: bold;">In Stock</span>
+                                }
+                            </td>
+                            @if (role.ToLower() != "user")
+                            {
+                                <td style="padding: 12px; border: 1px solid #ddd;">@product.SKU</td>
+                                <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">$@product.CostPrice.ToString("N2")</td>
+                                <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">$@product.SellingPrice.ToString("N2")</td>
+                                <td style="padding: 12px; border: 1px solid #ddd;">@(product.Supplier ?? "N/A")</td>
+                                <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                    <a href="/Inventory/Details/@product.Id" style="color: #2d5a5a; margin: 0 5px;">View</a>
+                                    <a href="/Product/Edit/@product.Id" style="color: #d4a574; margin: 0 5px;">Edit</a>
+                                    <a href="/Product/Delete/@product.Id" style="color: #dc3545; margin: 0 5px;">Delete</a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" style="padding: 20px; text-align: center; border: 1px solid #ddd;">No products found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+</style>

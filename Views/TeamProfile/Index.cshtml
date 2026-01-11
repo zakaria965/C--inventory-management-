@@ -1,0 +1,106 @@
+@model IEnumerable<InventoryManagementSystem.Models.TeamProfile>
+@{
+    ViewData["Title"] = "Team Profiles";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Team Profiles</h1>
+        <a href="/TeamProfile/Create" class="btn" style="background-color: #2d5a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Add Team Member</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var profile in Model)
+            {
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; @(!profile.IsActive ? "opacity: 0.6;" : "") transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';">
+                    <div style="margin-bottom: 15px;">
+                        @if (!string.IsNullOrEmpty(profile.ProfileImagePath))
+                        {
+                            <img src="@profile.ProfileImagePath" alt="@profile.FullName" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 5px solid #2d5a5a; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: block; margin: 0 auto; background: white;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #2d5a5a 0%, #3d7a7a 100%); display: none; align-items: center; justify-content: center; margin: 0 auto; border: 5px solid #2d5a5a; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                <i class="fas fa-user" style="font-size: 56px; color: white;"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #2d5a5a 0%, #3d7a7a 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 5px solid #2d5a5a; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                <i class="fas fa-user" style="font-size: 56px; color: white;"></i>
+                            </div>
+                        }
+                    </div>
+                    
+                    <h3 style="margin: 10px 0 5px 0; color: #2d5a5a;">@profile.FullName</h3>
+                    
+                    @if (!string.IsNullOrEmpty(profile.Role))
+                    {
+                        <p style="margin: 5px 0; color: #666; font-weight: 600;">
+                            <i class="fas fa-briefcase" style="margin-right: 5px;"></i>@profile.Role
+                        </p>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(profile.Gender))
+                    {
+                        <p style="margin: 5px 0; color: #999; font-size: 14px;">
+                            <i class="fas fa-venus-mars" style="margin-right: 5px;"></i>@profile.Gender
+                        </p>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(profile.EmailAddress))
+                    {
+                        <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                            <i class="fas fa-envelope" style="margin-right: 5px;"></i>
+                            <a href="mailto:@profile.EmailAddress" style="color: #2d5a5a; text-decoration: none;">@profile.EmailAddress</a>
+                        </p>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(profile.PhoneNumber))
+                    {
+                        <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                            <i class="fas fa-phone" style="margin-right: 5px;"></i>@profile.PhoneNumber
+                        </p>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(profile.Bio))
+                    {
+                        <p style="margin: 15px 0; color: #666; font-size: 14px; line-height: 1.6; text-align: left;">@profile.Bio</p>
+                    }
+                    
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; display: flex; gap: 5px; justify-content: center;">
+                        <a href="/TeamProfile/Edit/@profile.Id" style="color: #d4a574; padding: 5px 10px; text-decoration: none;">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <form method="post" action="/TeamProfile/ToggleStatus/@profile.Id" style="display: inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" style="background: @(profile.IsActive ? "#ffc107" : "#28a745"); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                @(profile.IsActive ? "Deactivate" : "Activate")
+                            </button>
+                        </form>
+                        <a href="/TeamProfile/Delete/@profile.Id" style="color: #dc3545; padding: 5px 10px; text-decoration: none;">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #999;">
+                <p>No team profiles found.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .alert { padding: 12px 20px; margin-bottom: 20px; border-radius: 4px; }
+    .alert-success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+</style>
+

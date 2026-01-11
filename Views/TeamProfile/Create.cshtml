@@ -1,0 +1,105 @@
+@model InventoryManagementSystem.Models.TeamProfile
+@{
+    ViewData["Title"] = "Add Team Member";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <h1>Add Team Member</h1>
+
+    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 700px;">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div style="margin-bottom: 20px;">
+                <label asp-for="FullName" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                    <i class="fas fa-user" style="margin-right: 8px; color: #2d5a5a;"></i>Full Name <span style="color: #dc3545;">*</span>
+                </label>
+                <input asp-for="FullName" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;" placeholder="Enter full name" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label asp-for="Gender" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        <i class="fas fa-venus-mars" style="margin-right: 8px; color: #2d5a5a;"></i>Gender
+                    </label>
+                    <select asp-for="Gender" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                        <option value="">-- Select Gender --</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Role" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        <i class="fas fa-briefcase" style="margin-right: 8px; color: #2d5a5a;"></i>Role in System
+                    </label>
+                    <select asp-for="Role" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                        <option value="">-- Select Role --</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="Backend">Backend</option>
+                        <option value="Design">Design</option>
+                        <option value="Testing & Consulting">Testing & Consulting</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label asp-for="PhoneNumber" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        <i class="fas fa-phone" style="margin-right: 8px; color: #2d5a5a;"></i>Phone Number
+                    </label>
+                    <input asp-for="PhoneNumber" type="tel" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;" placeholder="Enter phone number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="EmailAddress" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        <i class="fas fa-envelope" style="margin-right: 8px; color: #2d5a5a;"></i>Email Address
+                    </label>
+                    <input asp-for="EmailAddress" type="email" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;" placeholder="Enter email address" />
+                    <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label asp-for="Bio" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                    <i class="fas fa-info-circle" style="margin-right: 8px; color: #2d5a5a;"></i>Short Bio / Description
+                </label>
+                <textarea asp-for="Bio" rows="4" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical;" placeholder="Enter a short bio or description..."></textarea>
+                <span asp-validation-for="Bio" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                    <i class="fas fa-image" style="margin-right: 8px; color: #2d5a5a;"></i>Profile Image
+                </label>
+                <input type="file" name="profileImage" accept="image/*" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;" />
+                <small style="color: #666; margin-top: 5px; display: block;">Upload a profile image (optional). If no image is uploaded, a default avatar will be shown.</small>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label>
+                    <input type="checkbox" asp-for="IsActive" checked /> Active Status
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button type="submit" style="background-color: #2d5a5a; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Create</button>
+                <a href="/TeamProfile" style="background-color: #6c757d; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+    .text-danger { color: #dc3545; font-size: 14px; margin-top: 5px; display: block; }
+</style>
+

@@ -1,0 +1,80 @@
+@model InventoryManagementSystem.Models.Product
+@{
+    ViewData["Title"] = "Product Details";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Product Details</h1>
+        <div style="display: flex; gap: 10px;">
+            <a href="/Product/Edit/@Model.Id" style="background-color: #d4a574; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Edit</a>
+            <a href="/Inventory" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Back to List</a>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 700px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Product Name</label>
+                <p style="font-size: 18px; margin: 0; color: #2d5a5a;">@Model.Name</p>
+            </div>
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">SKU</label>
+                <p style="margin: 0;">@Model.SKU</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Category</label>
+                <p style="margin: 0;">@(Model.Category ?? "N/A")</p>
+            </div>
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Supplier</label>
+                <p style="margin: 0;">@(Model.Supplier ?? "N/A")</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Quantity in Stock</label>
+                <p style="margin: 0; font-size: 20px; font-weight: bold; color: @(Model.QuantityInStock <= (Model.MinimumStockLevel ?? 0) ? "#dc3545" : "#28a745");">@Model.QuantityInStock</p>
+            </div>
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Minimum Stock Level</label>
+                <p style="margin: 0;">@(Model.MinimumStockLevel?.ToString() ?? "N/A")</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Cost Price</label>
+                <p style="margin: 0;">$@Model.CostPrice.ToString("N2")</p>
+            </div>
+            <div>
+                <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Selling Price</label>
+                <p style="margin: 0;">$@Model.SellingPrice.ToString("N2")</p>
+            </div>
+        </div>
+
+        @if (Model.MinimumStockLevel.HasValue && Model.QuantityInStock <= Model.MinimumStockLevel.Value)
+        {
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #d4a574;">
+                <p style="margin: 0; color: #856404;">⚠️ <strong>Low Stock Alert:</strong> This product is below the minimum stock level.</p>
+            </div>
+        }
+
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <label style="font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Created Date</label>
+            <p style="margin: 0; color: #999; font-size: 14px;">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</p>
+            @if (Model.LastUpdated.HasValue)
+            {
+                <label style="font-weight: bold; color: #666; display: block; margin-top: 10px; margin-bottom: 5px;">Last Updated</label>
+                <p style="margin: 0; color: #999; font-size: 14px;">@Model.LastUpdated.Value.ToString("yyyy-MM-dd HH:mm")</p>
+            }
+        </div>
+    </div>
+</div>
+
+

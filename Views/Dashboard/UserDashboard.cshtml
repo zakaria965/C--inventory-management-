@@ -1,0 +1,62 @@
+@model IEnumerable<InventoryManagementSystem.Models.Order>
+@{
+    ViewData["Title"] = "My Dashboard";
+    Layout = "_UserDashboardLayout";
+}
+
+<div class="user-hero">
+    <div class="hero-left">
+        <h1 style="margin:0; color:#075854;">Welcome back, @(Context.Session.GetString("UserName") ?? "User")</h1>
+        <p style="margin:6px 0 0 0; color:#0b3a3a; opacity:0.85;">Your orders and quick actions are below.</p>
+        <div class="ud-card-grid">
+            <div class="card">
+                <h4 style="margin:0 0 8px 0;">Orders</h4>
+                <p style="margin:0; font-size:28px; font-weight:700; color:#075854;">@Model?.Count() ?? 0</p>
+            </div>
+            <div class="card">
+                <h4 style="margin:0 0 8px 0;">Unread Messages</h4>
+                <p style="margin:0; font-size:28px; font-weight:700; color:#075854;">@(ViewBag.UnreadMessageCount ?? 0)</p>
+            </div>
+            <div class="card">
+                <h4 style="margin:0 0 8px 0;">Quick Actions</h4>
+                <div class="hero-actions">
+                    <a class="quick-btn" href="/Order/Create">Create Order</a>
+                    <a class="quick-btn" href="/Inventory">Browse Inventory</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-right" style="min-width:260px;">
+        <div class="card">
+            <h4 style="margin:0 0 8px 0;">Need Help?</h4>
+            <p style="margin:0 0 12px 0; color:#075854;">Contact support and we'll get back to you.</p>
+            <a class="quick-btn" href="/Contact">Contact Us</a>
+        </div>
+    </div>
+</div>
+
+<div class="orders-list">
+    <h3 style="margin:12px 0; color:#075854;">Recent Orders</h3>
+    @if (Model == null || !Model.Any())
+    {
+        <div class="card">No orders yet. Create your first order.</div>
+    }
+    else
+    {
+        foreach (var order in Model.Take(10))
+        {
+            var statusClass = "status-" + (order.Status ?? "Pending");
+            <div class="order-item">
+                <div>
+                    <div style="font-weight:700;">@order.OrderNumber</div>
+                    <div style="font-size:13px; color:#075854; opacity:0.85;">@order.OrderDate.ToString("yyyy-MM-dd") — @order.CustomerName</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="status-chip @statusClass">@order.Status</div>
+                    <div style="font-weight:700;">@order.TotalAmount.ToString("C")</div>
+                    <div><a href="/Order/Details/@order.Id" style="color:#075854; font-weight:700;">View</a></div>
+                </div>
+            </div>
+        }
+    }
+</div>

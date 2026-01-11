@@ -1,0 +1,49 @@
+@model InventoryManagementSystem.Models.Message
+@{
+    var role = Context.Session.GetString("UserRole") ?? "User";
+    ViewData["Title"] = "New Message";
+    Layout = role.ToLower() == "user" ? "_UserDashboardLayout" : "_DashboardLayout";
+}
+
+<div class="container">
+    <h1>Create New Message</h1>
+
+    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 600px;">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Title" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <input asp-for="Title" style="width: 100%; padding: 8px; border: 1px solid #c41515ff; border-radius: 4px;" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Content" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
+                <textarea asp-for="Content" rows="5" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>
+                    <input type="checkbox" asp-for="IsImportant" /> Mark as Important
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" style="background-color: #2d5a5a; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Create Message</button>
+                <a href="/Message" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<style>
+    .text-danger { color: #dc3545; font-size: 14px; }
+</style>
+
+
