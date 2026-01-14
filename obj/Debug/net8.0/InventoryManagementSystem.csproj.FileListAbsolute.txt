@@ -332,3 +332,4 @@ C:\Users\xzaka\Desktop\inventory-management\obj\Debug\net8.0\refint\InventoryMan
 C:\Users\xzaka\Desktop\inventory-management\obj\Debug\net8.0\InventoryManagementSystem.pdb
 C:\Users\xzaka\Desktop\inventory-management\obj\Debug\net8.0\InventoryManagementSystem.genruntimeconfig.cache
 C:\Users\xzaka\Desktop\inventory-management\obj\Debug\net8.0\ref\InventoryManagementSystem.dll
+C:\Users\xzaka\Desktop\inventory-management\obj\Debug\net8.0\InventoryManagementSystem.sourcelink.json

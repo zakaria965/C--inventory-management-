@@ -21,6 +21,7 @@ namespace InventoryManagementSystem.Data
         public DbSet<Salary> Salaries { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<Category> Categories { get; set; }
         public DbSet<MissionVision> MissionVisions { get; set; }
         public DbSet<TeamProfile> TeamProfiles { get; set; }
 
@@ -117,6 +118,14 @@ namespace InventoryManagementSystem.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            // Configure Category
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.Name).IsUnique();
+                entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
             });
         }
     }

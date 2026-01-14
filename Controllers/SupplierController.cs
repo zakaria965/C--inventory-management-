@@ -39,11 +39,19 @@ namespace InventoryManagementSystem.Controllers
                 suppliers = suppliers.Where(s => s.IsActive == isActive);
             }
 
-            var categories = await _context.Suppliers
-                .Where(s => s.Category != null)
-                .Select(s => s.Category)
-                .Distinct()
-                .ToListAsync();
+            List<string> categories;
+            if (await _context.Categories.AnyAsync())
+            {
+                categories = await _context.Categories.OrderBy(c => c.Name).Select(c => c.Name).ToListAsync();
+            }
+            else
+            {
+                categories = await _context.Suppliers
+                    .Where(s => s.Category != null)
+                    .Select(s => s.Category)
+                    .Distinct()
+                    .ToListAsync();
+            }
 
             ViewBag.Categories = categories;
             ViewBag.SearchString = searchString;
@@ -75,6 +83,9 @@ namespace InventoryManagementSystem.Controllers
         // GET: Supplier/Create
         public IActionResult Create()
         {
+            ViewBag.Categories = _context.Categories.OrderBy(c => c.Name).Select(c => c.Name).ToList();
+            var role = HttpContext.Session.GetString("UserRole") ?? "User";
+            ViewBag.IsAdmin = role.ToLower() == "admin";
             return View();
         }
 
@@ -113,6 +124,9 @@ namespace InventoryManagementSystem.Controllers
             {
                 return NotFound();
             }
+            ViewBag.Categories = _context.Categories.OrderBy(c => c.Name).Select(c => c.Name).ToList();
+            var role = HttpContext.Session.GetString("UserRole") ?? "User";
+            ViewBag.IsAdmin = role.ToLower() == "admin";
             return View(supplier);
         }
 

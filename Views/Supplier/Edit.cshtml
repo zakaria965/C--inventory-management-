@@ -27,14 +27,87 @@
 
             <div style="margin-bottom: 15px;">
                 <label asp-for="Category" style="display: block; margin-bottom: 5px; font-weight: bold;"></label>
-                <select asp-for="Category" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">-- Select Category --</option>
-                    <option value="Furniture">Furniture</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Building Materials">Building Materials</option>
-                    <option value="Clothing & Apparel">Clothing & Apparel</option>
-                    <option value="Stationery">Stationery</option>
-                </select>
+                @if (ViewBag.IsAdmin == true)
+                {
+                    <!-- Admins: allow typing or choosing from suggestions -->
+                    <input list="categoriesList" asp-for="Category" placeholder="Type or select a category" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" />
+                    <datalist id="categoriesList">
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var c in (List<string>)ViewBag.Categories)
+                            {
+                                <option value="@c"></option>
+                            }
+                        }
+                    </datalist>
+                }
+                else
+                {
+                    <select asp-for="Category" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="">-- Select Category --</option>
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var c in (List<string>)ViewBag.Categories)
+                            {
+                                if (Model != null && Model.Category == c)
+                                {
+                                    <option value="@c" selected>@c</option>
+                                }
+                                else
+                                {
+                                    <option value="@c">@c</option>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (Model != null && Model.Category == "Furniture")
+                            {
+                                <option value="Furniture" selected>Furniture</option>
+                            }
+                            else
+                            {
+                                <option value="Furniture">Furniture</option>
+                            }
+
+                            if (Model != null && Model.Category == "Electronics")
+                            {
+                                <option value="Electronics" selected>Electronics</option>
+                            }
+                            else
+                            {
+                                <option value="Electronics">Electronics</option>
+                            }
+
+                            if (Model != null && Model.Category == "Building Materials")
+                            {
+                                <option value="Building Materials" selected>Building Materials</option>
+                            }
+                            else
+                            {
+                                <option value="Building Materials">Building Materials</option>
+                            }
+
+                            if (Model != null && Model.Category == "Clothing & Apparel")
+                            {
+                                <option value="Clothing &amp; Apparel" selected>Clothing &amp; Apparel</option>
+                            }
+                            else
+                            {
+                                <option value="Clothing &amp; Apparel">Clothing &amp; Apparel</option>
+                            }
+
+                            if (Model != null && Model.Category == "Stationery")
+                            {
+                                <option value="Stationery" selected>Stationery</option>
+                            }
+                            else
+                            {
+                                <option value="Stationery">Stationery</option>
+                            }
+                        }
+                    </select>
+                }
                 <span asp-validation-for="Category" class="text-danger"></span>
             </div>
 
