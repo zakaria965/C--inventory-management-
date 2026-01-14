@@ -67,11 +67,29 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession();
+// Enable authentication middleware so Identity cookies are processed
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
+
+// Explicit routes for publicly browsable pages (ensure these paths resolve)
+app.MapControllerRoute(
+    name: "inventory",
+    pattern: "Inventory/{action=Index}/{id?}",
+    defaults: new { controller = "Inventory", action = "Index" });
+
+app.MapControllerRoute(
+    name: "about",
+    pattern: "About/{action=Index}/{id?}",
+    defaults: new { controller = "About", action = "Index" });
+
+app.MapControllerRoute(
+    name: "contact",
+    pattern: "Contact/{action=Index}/{id?}",
+    defaults: new { controller = "Contact", action = "Index" });
 
 app.MapRazorPages();
 

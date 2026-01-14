@@ -36,8 +36,8 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Compact Sidebar (icons-only, expands on hover) -->
-        <aside class="sidebar compact" id="sidebar" aria-label="Main navigation">
+        <!-- Fixed Sidebar (always expanded) -->
+        <aside class="sidebar fixed" id="sidebar" aria-label="Main navigation">
             <div class="sidebar-header" title="Inventory">
                 <div class="logo-circle"><i class="fas fa-box"></i></div>
                 <span class="sidebar-title">Inventory</span>
@@ -155,13 +155,24 @@
             </nav>
         </aside>
         
-            <!-- Main Content -->
+                <!-- Main Content -->
             <main class="main-content">
-                <!-- Toggle Button -->
-                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
-                
+                <!-- Top Navbar -->
+                <header class="top-navbar" role="banner">
+                    <div class="nav-left">
+                        <button id="mobileSidebarToggle" class="mobile-toggle" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+                        <div class="brand">Inventory Management</div>
+                    </div>
+                    <div class="nav-center">
+                        <input class="nav-search" placeholder="Search..." aria-label="Search" />
+                    </div>
+                    <div class="nav-right">
+                        <a href="/Message" title="Messages" class="nav-icon"><i class="fas fa-envelope"></i></a>
+                        <a href="/Account/Profile" title="Profile" class="nav-icon"><i class="fas fa-user-circle"></i></a>
+                        <a href="#" onclick="event.preventDefault(); event.stopPropagation(); confirmLogout(event); return false;" title="Logout" class="nav-icon"><i class="fas fa-sign-out-alt"></i></a>
+                    </div>
+                </header>
+
                 <div class="content-wrapper">
                     @RenderBody()
                 </div>
@@ -233,64 +244,58 @@
     </style>
 
     <style>
-        /* Compact sidebar styles: narrow by default, expand on hover */
+        /* Fixed sidebar styles: always expanded */
         .dashboard-container { display:flex; }
-        .sidebar.compact {
-            width: 72px;
-            min-width: 72px;
+        .sidebar.fixed {
+            width: 220px;
+            min-width: 220px;
             background: linear-gradient(180deg,#164640 0%, #1f6b6b 100%);
             color: #fff;
             height: 100vh;
-            overflow: hidden;
-            transition: width 200ms ease;
+            overflow: auto;
             position: fixed;
             left: 0;
             top: 0;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             padding-top: 18px;
+            padding-left: 14px;
             box-shadow: 2px 0 12px rgba(0,0,0,0.08);
         }
 
-        .sidebar.compact .logo-circle { width:44px; height:44px; border-radius:10px; background: rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:18px; }
-        .sidebar.compact .sidebar-title { display:none; }
-        .sidebar.compact .sidebar-user { margin-top:18px; margin-bottom:8px; text-align:center; width:100%; }
-        .sidebar.compact .user-avatar { width:44px; height:44px; border-radius:50%; background: rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; margin:0 auto; }
-        .sidebar.compact .user-info { display:none; }
+        .sidebar.fixed .logo-circle { width:44px; height:44px; border-radius:10px; background: rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:18px; margin-right:8px }
+        .sidebar.fixed .sidebar-title { display:inline-block; margin-left:8px; font-size:18px; font-weight:700; }
+        .sidebar.fixed .sidebar-user { margin-top:18px; margin-bottom:8px; text-align:left; width:100%; display:flex; gap:10px; align-items:center }
+        .sidebar.fixed .user-avatar { width:44px; height:44px; border-radius:50%; background: rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; }
+        .sidebar.fixed .user-info { display:block; }
 
-        .sidebar.compact .sidebar-nav { display:flex; flex-direction:column; gap:6px; width:100%; padding: 10px 0; align-items:center; }
-        .sidebar.compact .nav-item { width:100%; display:flex; align-items:center; gap:12px; padding:10px 6px; color: #fff; text-decoration:none; font-weight:600; border-radius:8px; }
-        .sidebar.compact .nav-item i { font-size:18px; width:32px; text-align:center; }
-        .sidebar.compact .nav-item span { display:none; }
+        .sidebar.fixed .sidebar-nav { display:flex; flex-direction:column; gap:8px; width:100%; padding: 10px 6px; }
+        .sidebar.fixed .nav-item { width:100%; display:flex; align-items:center; gap:12px; padding:10px 12px; color: #fff; text-decoration:none; font-weight:600; border-radius:8px; }
+        .sidebar.fixed .nav-item i { font-size:18px; width:28px; text-align:center; }
+        .sidebar.fixed .nav-item span { display:inline-block; }
 
-        /* Expand on hover or when `.expanded` class is set */
-        .sidebar.compact:hover,
-        .sidebar.compact.expanded {
-            width: 220px;
-            min-width: 220px;
-            align-items:flex-start;
-            padding-left:16px;
-        }
-        .sidebar.compact:hover .sidebar-title,
-        .sidebar.compact.expanded .sidebar-title { display:inline-block; margin-left:12px; font-size:18px; font-weight:700; }
-        .sidebar.compact:hover .user-info,
-        .sidebar.compact.expanded .user-info { display:block; margin-left:12px; }
-        .sidebar.compact:hover .nav-item span,
-        .sidebar.compact.expanded .nav-item span { display:inline-block; }
-        .sidebar.compact:hover .nav-item { padding-left:12px; }
+        .sidebar.fixed .nav-item.active { background: rgba(255,255,255,0.06); }
+        .sidebar.fixed .nav-item:hover { background: rgba(255,255,255,0.03); }
 
-        .sidebar.compact .nav-item.active { background: rgba(255,255,255,0.06); }
-        .sidebar.compact .nav-item:hover { background: rgba(255,255,255,0.03); }
+        /* Top navbar */
+        .top-navbar { position: fixed; top: 0; left: 220px; right: 0; height: 64px; background: linear-gradient(90deg,#ffffff 0%, #f7fbfb 100%); display:flex; align-items:center; gap:16px; padding: 0 18px; box-shadow: 0 6px 20px rgba(10,10,10,0.06); z-index: 900; }
+        .top-navbar .brand { font-weight:700; font-size:18px; color:#1e3939; }
+        .top-navbar .nav-left { display:flex; align-items:center; gap:12px; }
+        .top-navbar .nav-center { flex:1; display:flex; justify-content:center }
+        .top-navbar .nav-right { display:flex; gap:12px; align-items:center }
+        .top-navbar .nav-icon { color:#1e3939; text-decoration:none; font-size:18px; padding:8px; border-radius:8px }
+        .top-navbar .nav-search { width:60%; max-width:520px; padding:8px 12px; border-radius:8px; border:1px solid #e6f0ef; background: #fff; }
 
-        main.main-content { margin-left: 72px; transition: margin-left 200ms ease; width: calc(100% - 72px); }
-        .sidebar.compact:hover ~ main.main-content, .sidebar.compact.expanded ~ main.main-content { margin-left: 220px; width: calc(100% - 220px); }
+        /* Adjust main content spacing to account for fixed sidebar and navbar */
+        main.main-content { margin-left: 220px; margin-top: 64px; transition: margin 200ms ease; width: calc(100% - 220px); }
 
         /* small-screen adjustments */
         @@media (max-width: 900px) {
-            .sidebar.compact { position: fixed; left: 0; top: 0; height: 100vh; }
-            main.main-content { margin-left: 72px; }
+            .sidebar.fixed { position: fixed; left: 0; top: 0; height: 100vh; width: 220px; }
+            .top-navbar { left: 220px; }
+            main.main-content { margin-left: 220px; }
         }
     </style>
 

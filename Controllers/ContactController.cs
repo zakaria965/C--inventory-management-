@@ -17,6 +17,7 @@ namespace InventoryManagementSystem.Controllers
         }
 
         // GET: Contact
+        [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public IActionResult Index()
         {
             // Allow public access - no login required

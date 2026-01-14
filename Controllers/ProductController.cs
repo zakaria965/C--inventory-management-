@@ -25,6 +25,15 @@ namespace InventoryManagementSystem.Controllers
                 .OrderBy(s => s.Name)
                 .ToListAsync();
             ViewBag.Suppliers = suppliers;
+            // Load categories for dropdown (from Categories table if available)
+            if (await _context.Categories.AnyAsync())
+            {
+                ViewBag.Categories = await _context.Categories.OrderBy(c => c.Name).Select(c => c.Name).ToListAsync();
+            }
+            else
+            {
+                ViewBag.Categories = new List<string> { "Furniture", "Electronics", "Building Materials" };
+            }
             return View();
         }
 
@@ -73,6 +82,15 @@ namespace InventoryManagementSystem.Controllers
                 .OrderBy(s => s.Name)
                 .ToListAsync();
             ViewBag.Suppliers = suppliers;
+            // Reload categories for dropdown
+            if (await _context.Categories.AnyAsync())
+            {
+                ViewBag.Categories = await _context.Categories.OrderBy(c => c.Name).Select(c => c.Name).ToListAsync();
+            }
+            else
+            {
+                ViewBag.Categories = new List<string> { "Furniture", "Electronics", "Building Materials" };
+            }
             return View(product);
         }
 
@@ -96,6 +114,15 @@ namespace InventoryManagementSystem.Controllers
                 .OrderBy(s => s.Name)
                 .ToListAsync();
             ViewBag.Suppliers = suppliers;
+            // Load categories for dropdown
+            if (await _context.Categories.AnyAsync())
+            {
+                ViewBag.Categories = await _context.Categories.OrderBy(c => c.Name).Select(c => c.Name).ToListAsync();
+            }
+            else
+            {
+                ViewBag.Categories = new List<string> { "Furniture", "Electronics", "Building Materials" };
+            }
             return View(product);
         }
 
@@ -151,6 +178,15 @@ namespace InventoryManagementSystem.Controllers
                 .OrderBy(s => s.Name)
                 .ToListAsync();
             ViewBag.Suppliers = suppliers;
+            // Reload categories for dropdown
+            if (await _context.Categories.AnyAsync())
+            {
+                ViewBag.Categories = await _context.Categories.OrderBy(c => c.Name).Select(c => c.Name).ToListAsync();
+            }
+            else
+            {
+                ViewBag.Categories = new List<string> { "Furniture", "Electronics", "Building Materials" };
+            }
             return View(product);
         }
 

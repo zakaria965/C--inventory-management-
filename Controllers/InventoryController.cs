@@ -15,6 +15,7 @@ namespace InventoryManagementSystem.Controllers
         }
 
         // GET: Inventory
+        [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public async Task<IActionResult> Index(string searchString, string categoryFilter)
         {
             var products = from p in _context.Products select p;
@@ -52,6 +53,7 @@ namespace InventoryManagementSystem.Controllers
         }
 
         // GET: Inventory/Details/5
+        [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

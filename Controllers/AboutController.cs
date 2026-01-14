@@ -13,6 +13,7 @@ namespace InventoryManagementSystem.Controllers
             _context = context;
         }
 
+        [Microsoft.AspNetCore.Authorization.AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var missionVision = await _context.MissionVisions.FirstOrDefaultAsync();
