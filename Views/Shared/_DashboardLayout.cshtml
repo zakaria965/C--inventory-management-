@@ -36,14 +36,14 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <i class="fas fa-box"></i>
+        <!-- Compact Sidebar (icons-only, expands on hover) -->
+        <aside class="sidebar compact" id="sidebar" aria-label="Main navigation">
+            <div class="sidebar-header" title="Inventory">
+                <div class="logo-circle"><i class="fas fa-box"></i></div>
                 <span class="sidebar-title">Inventory</span>
             </div>
-            
-            <div class="sidebar-user">
+
+            <div class="sidebar-user" title="User">
                 <div class="user-avatar">
                     <i class="fas fa-user"></i>
                 </div>
@@ -52,8 +52,8 @@
                     <div class="user-email">@(Context.Session.GetString("UserEmail") ?? "user@example.com")</div>
                 </div>
             </div>
-            
-            <nav class="sidebar-nav">
+
+            <nav class="sidebar-nav" role="navigation">
                 @{
                     var role = Context.Session.GetString("UserRole") ?? "User";
                 }
@@ -229,6 +229,68 @@
 
         #logoutModal button i {
             margin-right: 8px;
+        }
+    </style>
+
+    <style>
+        /* Compact sidebar styles: narrow by default, expand on hover */
+        .dashboard-container { display:flex; }
+        .sidebar.compact {
+            width: 72px;
+            min-width: 72px;
+            background: linear-gradient(180deg,#164640 0%, #1f6b6b 100%);
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            transition: width 200ms ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 18px;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+        }
+
+        .sidebar.compact .logo-circle { width:44px; height:44px; border-radius:10px; background: rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:18px; }
+        .sidebar.compact .sidebar-title { display:none; }
+        .sidebar.compact .sidebar-user { margin-top:18px; margin-bottom:8px; text-align:center; width:100%; }
+        .sidebar.compact .user-avatar { width:44px; height:44px; border-radius:50%; background: rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; margin:0 auto; }
+        .sidebar.compact .user-info { display:none; }
+
+        .sidebar.compact .sidebar-nav { display:flex; flex-direction:column; gap:6px; width:100%; padding: 10px 0; align-items:center; }
+        .sidebar.compact .nav-item { width:100%; display:flex; align-items:center; gap:12px; padding:10px 6px; color: #fff; text-decoration:none; font-weight:600; border-radius:8px; }
+        .sidebar.compact .nav-item i { font-size:18px; width:32px; text-align:center; }
+        .sidebar.compact .nav-item span { display:none; }
+
+        /* Expand on hover or when `.expanded` class is set */
+        .sidebar.compact:hover,
+        .sidebar.compact.expanded {
+            width: 220px;
+            min-width: 220px;
+            align-items:flex-start;
+            padding-left:16px;
+        }
+        .sidebar.compact:hover .sidebar-title,
+        .sidebar.compact.expanded .sidebar-title { display:inline-block; margin-left:12px; font-size:18px; font-weight:700; }
+        .sidebar.compact:hover .user-info,
+        .sidebar.compact.expanded .user-info { display:block; margin-left:12px; }
+        .sidebar.compact:hover .nav-item span,
+        .sidebar.compact.expanded .nav-item span { display:inline-block; }
+        .sidebar.compact:hover .nav-item { padding-left:12px; }
+
+        .sidebar.compact .nav-item.active { background: rgba(255,255,255,0.06); }
+        .sidebar.compact .nav-item:hover { background: rgba(255,255,255,0.03); }
+
+        main.main-content { margin-left: 72px; transition: margin-left 200ms ease; width: calc(100% - 72px); }
+        .sidebar.compact:hover ~ main.main-content, .sidebar.compact.expanded ~ main.main-content { margin-left: 220px; width: calc(100% - 220px); }
+
+        /* small-screen adjustments */
+        @@media (max-width: 900px) {
+            .sidebar.compact { position: fixed; left: 0; top: 0; height: 100vh; }
+            main.main-content { margin-left: 72px; }
         }
     </style>
 
